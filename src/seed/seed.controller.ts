@@ -6,7 +6,7 @@ import { ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
 
 import { SeedService } from './seed.service';
 
-@ApiTags('Seed')
+// @ApiTags('Seed')
 @Controller('seed')
 export class SeedController {
   constructor(private readonly seedService: SeedService) {}
