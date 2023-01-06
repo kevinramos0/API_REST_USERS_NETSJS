@@ -1,7 +1,4 @@
 import { Module } from '@nestjs/common';
-import { join } from 'path';
-import { ServeStaticModule } from '@nestjs/serve-static';
-
 import { DatabaseModule } from './database/database.module';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
@@ -46,6 +43,7 @@ import * as Joi from '@hapi/joi';
         PASS_SERVER_EMAIL: Joi.string().required(),
         HOST_SERVER_EMAIL: Joi.string().required(),
         PORT_SERVER_EMAIL: Joi.number().required(),
+        SECURE_SERVER_EMAIL: Joi.boolean().required(),
         EMAIL: Joi.string().required(),
       }),
     }),
