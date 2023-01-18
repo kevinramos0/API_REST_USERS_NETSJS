@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ProfilesService } from '../users/services/profiles.service';
 import { RolsService } from '../users/services/rols.service';
 import { initSeedData } from './data/seed.init';
-import { Profile, Rol, User, Modules, ProfileModules } from '../users/entities';
+import { Rol, User, Modules } from '../users/entities';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ModulesService } from '../users/services/modules.service';
@@ -18,8 +18,6 @@ export class SeedService {
     private readonly _rolsService: RolsService,
     @Inject(ModulesService)
     private readonly _moduleService: ModulesService,
-    @InjectRepository(ProfileModules)
-    private readonly _profileModuleService: Repository<ProfileModules>,
   ) {}
 
   async initSeed() {
@@ -28,14 +26,10 @@ export class SeedService {
     if (!searchUser) {
       const rol = await this.seedCreateRols();
       const profile = await this.seedCreateProfile();
-      const user = await this.seedCreateUser(profile);
+      const user = await this.seedCreateUser(profile.id);
       const modules = await this.seedCreateModules();
-      const addModulesToProfile = await this.seedAddModulesToProfile(
-        profile,
-        modules,
-      );
 
-      await Promise.all([rol, profile, user, modules, addModulesToProfile]);
+      await Promise.all([rol, profile, user, modules]);
 
       return {
         message: 'SEED EXECUTED SUCCESSFULLY',
@@ -57,25 +51,6 @@ export class SeedService {
     return rols[0];
   }
 
-  async seedCreateProfile() {
-    const seedProfile = initSeedData.Profile;
-
-    const profile = await this._profileService.createProfile(seedProfile);
-
-    return profile;
-  }
-
-  async seedCreateUser(profile: Profile) {
-    const seedUser = initSeedData.User;
-
-    const user = this._userService.create(seedUser);
-    user.profile = profile;
-
-    await this._userService.save(user);
-
-    return user;
-  }
-
   async seedCreateModules() {
     const seedModules = initSeedData.Modules;
 
@@ -88,14 +63,24 @@ export class SeedService {
     return modules.map((p) => p.id);
   }
 
-  async seedAddModulesToProfile(profile: Profile, modules: number[]) {
-    for (const module of modules) {
-      await this._profileModuleService
-        .createQueryBuilder()
-        .insert()
-        .into(ProfileModules)
-        .values({ profile: profile, module: { id: module } })
-        .execute();
-    }
+  async seedCreateProfile() {
+    const seedProfile = initSeedData.Profile;
+
+    const profile = await this._profileService.createProfile(seedProfile);
+
+    return profile;
+  }
+
+  async seedCreateUser(profile: number) {
+    const seedUser = initSeedData.User;
+
+    const user = this._userService.create({
+      ...seedUser,
+      profile: { id: profile },
+    });
+
+    await this._userService.save(user);
+
+    return user;
   }
 }

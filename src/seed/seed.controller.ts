@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
+import { ApiExcludeEndpoint } from '@nestjs/swagger';
 
 // import { ValidRols } from '../auth/interfaces';
 // import { Auth } from '../auth/decorators/auth.decorator';

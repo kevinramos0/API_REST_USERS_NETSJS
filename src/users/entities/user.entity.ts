@@ -14,6 +14,7 @@ import { refreshToken } from './refreshToken.entity';
 
 @Entity({ name: 'mnt_users' })
 export class User {
+  [x: string]: unknown;
   @PrimaryGeneratedColumn()
   id: number;
 

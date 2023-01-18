@@ -7,6 +7,7 @@ interface IProfiles {
   isActive: boolean;
   createAt: string;
   rols: number[];
+  modules: number[];
 }
 
 interface IRols {
@@ -204,20 +205,6 @@ export const initSeedData: SeedData = {
       createAt: moment().tz('America/El_Salvador').format(),
     },
   ],
-  Profile: {
-    name: 'Administrator',
-    description: 'administrator of system',
-    isActive: true,
-    createAt: moment().tz('America/El_Salvador').format(),
-    rols: [1],
-  },
-  User: {
-    email: 'administrator@email.com',
-    password: bcrypt.hashSync('Admin123', 10),
-    isActive: true,
-    isVerified: true,
-    createAt: moment().tz('America/El_Salvador').format(),
-  },
   Modules: [
     {
       name: 'Users',
@@ -240,4 +227,19 @@ export const initSeedData: SeedData = {
       isActive: true,
     },
   ],
+  Profile: {
+    name: 'Administrator',
+    description: 'administrator of system',
+    isActive: true,
+    createAt: moment().tz('America/El_Salvador').format(),
+    rols: [1],
+    modules: [1, 2, 3, 4],
+  },
+  User: {
+    email: 'administrator@email.com',
+    password: bcrypt.hashSync('admin', 10),
+    isActive: true,
+    isVerified: true,
+    createAt: moment().tz('America/El_Salvador').format(),
+  },
 };
