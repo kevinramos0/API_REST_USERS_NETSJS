@@ -1,5 +1,5 @@
 export enum EnumProfiles {
-  admin = 'admin',
-  coAdmin = 'co-admin',
-  user = 'user',
+  admin = 'Administrator',
+  coAdmin = 'Co-Administrator',
+  user = 'User',
 }

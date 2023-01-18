@@ -1,6 +1,7 @@
 import {
   ApiProperty,
   ApiPropertyOptional,
+  IntersectionType,
   OmitType,
   PartialType,
   PickType,
@@ -13,6 +14,7 @@ import {
   IsString,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
+import { paginationDto } from 'src/common/dto/pagination.dto';
 
 export class GenericModuleDTO {
   @ApiProperty()
@@ -43,9 +45,10 @@ export class UpdateModuleDto extends PartialType(
   OmitType(GenericModuleDTO, ['id']),
 ) {}
 
-export class FindModuleDto extends PickType(PartialType(GenericModuleDTO), [
-  'name',
-]) {
+export class FindModuleDto extends IntersectionType(
+  PickType(PartialType(GenericModuleDTO), ['name']),
+  paginationDto,
+) {
   @ApiPropertyOptional({ default: true })
   @IsOptional()
   /** TRANSFORM STRING TO BOOLEAN */
@@ -56,5 +59,5 @@ export class FindModuleDto extends PickType(PartialType(GenericModuleDTO), [
     }
     return value;
   })
-  readonly isActive?: boolean = true;
+  readonly active?: boolean = true;
 }

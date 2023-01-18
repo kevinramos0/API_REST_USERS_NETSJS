@@ -49,18 +49,18 @@ export class GenericUserDto {
   @IsPositive()
   @IsOptional()
   @Type(() => Number)
-  readonly idProfile: number;
+  readonly profile: number;
 }
 
 export class CreateUserDto extends PickType(GenericUserDto, [
   'email',
   'password',
-  'idProfile',
+  'profile',
 ] as const) {}
 
 export class UpdateUserDto extends PickType(PartialType(GenericUserDto), [
   'email',
-  'idProfile',
+  'profile',
 ] as const) {
   @ApiPropertyOptional()
   @IsOptional()

@@ -63,8 +63,8 @@ export class UsersService {
     return {
       users,
       pagination: {
-        limit,
-        offset,
+        limit: pagination ? limit : count,
+        offset: pagination ? limit : 1,
         total: count,
       },
     };
@@ -74,25 +74,25 @@ export class UsersService {
     const { id, email } = findUserDto;
     const userQuery = this._userRepository
       .createQueryBuilder('user')
-      .leftJoinAndSelect('user.profile', 'profile');
+      .leftJoin('user.profile', 'profile');
 
     if (id) {
       userQuery.where('user.id = :id', { id });
     } else if (email) {
       userQuery.where('user.email =:email', { email });
     }
+
     userQuery.select([
-      'user.id as id',
-      'user.email as email',
-      'user.isActive as active',
-      'user.isVerified as verified',
-      'user.createAt as created',
-      'user.updateAt as updated',
-      'profile.id as idProfile',
-      'profile.name as profile',
-      'profile.description as profile_description',
+      'user.id',
+      'user.email',
+      'user.isActive',
+      'user.isVerified',
+      'user.createAt',
+      'user.updateAt',
+      'profile.name',
+      'profile.id',
     ]);
-    const user = await userQuery.getRawOne();
+    const user = await userQuery.getOne();
 
     if (!user) throw new NotFoundException(`User not found`);
 
@@ -100,13 +100,7 @@ export class UsersService {
   }
 
   async createUser(createUserDTO: CreateUserDto) {
-    const { password, ...userData } = createUserDTO;
-
-    const newUser = this._userRepository.create({
-      ...userData,
-      password: bcrypt.hashSync(password, 10),
-      createAt: moment().tz('America/El_Salvador').format(),
-    });
+    const { password, profile, ...userData } = createUserDTO;
 
     //search find user with email
     const existEmail = await this._userRepository.findOne({
@@ -116,36 +110,37 @@ export class UsersService {
     if (existEmail)
       throw new BadRequestException('This email used for other User');
 
-    // add profile
-    if (userData.idProfile) {
-      const profile = await this._profileRepository.findOneProfile(
-        userData.idProfile,
-      );
-      newUser.profile = profile; //asign profile to user
+    if (profile) {
+      await this._profileRepository.findOneProfile(profile);
     }
+    const newUser = this._userRepository.create({
+      ...userData,
+      password: bcrypt.hashSync(password, 10),
+      isActive: true,
+      profile: { id: profile },
+      createAt: moment().tz('America/El_Salvador').format(),
+    });
+
     await this._userRepository.save(newUser);
 
     // send email for verification
-    const { message } = await this._authService.sendEmailVerifyUser(
-      newUser as User,
-    );
+    // const { message } = await this._authService.sendEmailVerifyUser(
+    //   newUser as User,
+    // );
     delete newUser.password; // not show password
 
-    return {
-      newUser,
-      message,
-    };
+    return newUser;
 
     // return emailVerification;
   }
 
   async updateUser(id: number, updateUserDTO: UpdateUserDto): Promise<User> {
     await this.findOneUser({ id }); //search if exist user
-    const { idProfile, ...userData } = updateUserDTO;
+    const { profile, ...userData } = updateUserDTO;
     const user = await this._userRepository.preload({
       id,
       updateAt: moment().tz('America/El_Salvador').format(),
-      profile: { id: idProfile },
+      profile: { id: profile },
       ...userData,
     });
     await this._userRepository.save(user);

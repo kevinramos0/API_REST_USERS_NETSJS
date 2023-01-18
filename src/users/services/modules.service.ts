@@ -1,5 +1,11 @@
 import * as moment from 'moment-timezone';
-import { FindOptionsWhere, ILike, Repository, QueryRunner } from 'typeorm';
+import {
+  FindOptionsWhere,
+  ILike,
+  Repository,
+  FindManyOptions,
+  DataSource,
+} from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   ConflictException,
@@ -20,21 +26,40 @@ export class ModulesService {
   constructor(
     @InjectRepository(Modules)
     private readonly _moduleRepository: Repository<Modules>,
+    private readonly _dataSource: DataSource,
   ) {}
 
   async findAll(payloadUpdateModule: FindModuleDto) {
-    const { name, isActive = true } = payloadUpdateModule;
-    const whereOption: FindOptionsWhere<Modules> = {};
+    const { limit = 10, offset = 1, pagination = true } = payloadUpdateModule;
+    const { name, active = true } = payloadUpdateModule;
+    const findOptions: FindManyOptions<Modules> = {};
+    const where: FindOptionsWhere<Modules> = {};
 
-    if (name) whereOption.name = ILike(`%${name || ''}%`);
-    whereOption.isActive = isActive;
+    if (name) where.name = ILike(`%${name || ''}%`);
+    if (active !== undefined) where.isActive = active;
 
-    const modules = await this._moduleRepository.find({
-      where: whereOption,
-      select: { id: true, name: true, description: true, isActive: true },
-    });
+    // if (is_active) where.firstName = Like(`%${firstName || ''}%`);
+    if (pagination) {
+      findOptions.take = limit;
+      findOptions.skip = limit * (offset - 1);
+    }
 
-    return modules;
+    findOptions.where = where;
+    // findOptions.relations = { user: true };
+    findOptions.order = { name: 'ASC' };
+
+    // search normal
+    const [modules, total] = await this._moduleRepository.findAndCount(
+      findOptions,
+    );
+    return {
+      modules,
+      pagination: {
+        limit: pagination ? limit : total,
+        offset: pagination ? limit : 1,
+        total,
+      },
+    };
   }
 
   async findByPk(id: number) {
@@ -100,12 +125,13 @@ export class ModulesService {
     };
   }
 
-  async addToProfile(
-    modules: number[],
-    profile: Profile,
-    queryRunner: QueryRunner,
-  ) {
+  async addToProfile(modules: number[], profile: Profile) {
+    const queryRunner = this._dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
+      // add rols to profile
       for (const module of modules) {
         await this.findByPk(module); //search if exist module
         await queryRunner.manager
@@ -115,26 +141,41 @@ export class ModulesService {
           .values({ profile: profile, module: { id: module } })
           .execute();
       }
-    } catch (error) {
-      throw new BadRequestException(error);
+      // commit transaction now:
+      await queryRunner.commitTransaction();
+
+      //rolls all changes
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new BadRequestException(err);
+
+      // finish transaction
+    } finally {
+      await queryRunner.release();
     }
   }
 
-  async deteleToProfile(
-    module: number,
-    profile: Profile,
-    queryRunner: QueryRunner,
-  ) {
-    try {
-      await this.findByPk(module); //search if exist module
+  async deteleToProfile(profile: Profile) {
+    const queryRunner = this._dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
+    try {
       // delete module
       await queryRunner.manager.delete(ProfileModules, {
         profile,
-        module: { id: module },
       });
-    } catch (error) {
-      throw new BadRequestException(error);
+      // commit transaction now:
+      await queryRunner.commitTransaction();
+
+      //rolls all changes
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw new BadRequestException(err);
+
+      // finish transaction
+    } finally {
+      await queryRunner.release();
     }
   }
 }

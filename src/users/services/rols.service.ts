@@ -18,7 +18,7 @@ export class RolsService {
 
   async getAllRols(searchRolDto: SearchRolDto) {
     const { limit = 10, offset = 1, pagination = true } = searchRolDto;
-    const { name, isActive = true } = searchRolDto;
+    const { name, active = true } = searchRolDto;
 
     const findOptions: FindManyOptions<Rol> = {};
     const where: FindOptionsWhere<Rol> = {};
@@ -29,23 +29,17 @@ export class RolsService {
     }
 
     if (name) where.name = ILike(`%${name || ''}%`);
-    if (isActive !== undefined) where.isActive = isActive;
+    if (active !== undefined) where.isActive = active;
 
     findOptions.where = where;
     findOptions.order = { name: 'ASC' };
-    findOptions.select = {
-      id: true,
-      name: true,
-      description: true,
-      isActive: true,
-    };
 
     const [rols, count] = await this._rolsRepository.findAndCount(findOptions);
     return {
       rols,
       pagination: {
-        limit,
-        offset,
+        limit: pagination ? limit : count,
+        offset: pagination ? offset : 1,
         total: count,
       },
     };

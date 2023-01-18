@@ -18,7 +18,6 @@ import {
 import { ProfilesService } from '../services/profiles.service';
 import { Auth } from '../../auth/decorators/auth.decorator';
 import { ValidRols } from '../../auth/interfaces';
-import { ProfileModuleDTO } from '../dto/profile-module.dto';
 
 @ApiBearerAuth()
 @ApiTags('Profiles')
@@ -40,29 +39,29 @@ export class ProfilesController {
     return this.profileService.createProfile(profileDto);
   }
 
-  @ApiOperation({ summary: 'Get Rols to Profile' })
-  @Get('/:id/rols')
-  @Auth(ValidRols.getProfile, ValidRols.getRol, ValidRols.adminGetProfile)
-  findAllRoles(@Param('id', ParseIntPipe) id: number) {
-    return this.profileService.getRolsToProfile(id);
-  }
+  // @ApiOperation({ summary: 'Get Rols to Profile' })
+  // @Get('/:id/rols')
+  // @Auth(ValidRols.getProfile, ValidRols.getRol, ValidRols.adminGetProfile)
+  // findAllRoles(@Param('id', ParseIntPipe) id: number) {
+  //   return this.profileService.getRolsToProfile(id);
+  // }
 
-  @ApiOperation({ summary: 'Get Modules to Profile' })
-  @Get(':id/modules')
-  @Auth(ValidRols.getProfile, ValidRols.getModule, ValidRols.adminGetProfile)
-  getModules(@Param('id', ParseIntPipe) id: number) {
-    return this.profileService.getModulesProfile(id);
-  }
+  // @ApiOperation({ summary: 'Get Modules to Profile' })
+  // @Get(':id/modules')
+  // @Auth(ValidRols.getProfile, ValidRols.getModule, ValidRols.adminGetProfile)
+  // getModules(@Param('id', ParseIntPipe) id: number) {
+  //   return this.profileService.getModulesProfile(id);
+  // }
 
-  @ApiOperation({ summary: 'Add Modules to Profile' })
-  @Post(':id/modules')
-  @Auth(ValidRols.adminGetProfile, ValidRols.adminCreateModule)
-  addModules(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() { modules }: ProfileModuleDTO,
-  ) {
-    return this.profileService.addModulesToProfile(id, modules);
-  }
+  // @ApiOperation({ summary: 'Add Modules to Profile' })
+  // @Post(':id/modules')
+  // @Auth(ValidRols.adminGetProfile, ValidRols.adminCreateModule)
+  // addModules(
+  //   @Param('id', ParseIntPipe) id: number,
+  //   @Body() { modules }: ProfileModuleDTO,
+  // ) {
+  //   return this.profileService.addModulesToProfile(id, modules);
+  // }
 
   @ApiOperation({ summary: 'Find One Profile' })
   @Get(':id')
@@ -81,15 +80,15 @@ export class ProfilesController {
     return this.profileService.updateProfile(id, updateProfileDto);
   }
 
-  @ApiOperation({ summary: 'Delete Modules to Profile' })
-  @Delete(':id/modules/:idModule')
-  @Auth(ValidRols.adminDeleteModule)
-  deleteModule(
-    @Param('id', ParseIntPipe) id: number,
-    @Param('idModule', ParseIntPipe) idModule: number,
-  ) {
-    return this.profileService.deleteModuleProfile(id, idModule);
-  }
+  // @ApiOperation({ summary: 'Delete Modules to Profile' })
+  // @Delete(':id/modules/:idModule')
+  // @Auth(ValidRols.adminDeleteModule)
+  // deleteModule(
+  //   @Param('id', ParseIntPipe) id: number,
+  //   @Param('idModule', ParseIntPipe) idModule: number,
+  // ) {
+  //   return this.profileService.deleteModuleProfile(id, idModule);
+  // }
 
   @ApiOperation({ summary: 'Delete Profile' })
   @Delete(':id')

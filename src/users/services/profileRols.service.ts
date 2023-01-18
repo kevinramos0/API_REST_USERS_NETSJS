@@ -65,15 +65,15 @@ export class ProfileRolsService {
     }
   }
 
-  async findAllRolsOneProfile(idProfile: number) {
-    const rols = await this._profileRolsRepository
-      .createQueryBuilder('rols')
-      .leftJoinAndSelect('rols.profile', 'profile')
-      .where('profile.id = :idProfile', { idProfile })
-      .leftJoinAndSelect('rols.rol', 'rol')
-      .select(['rols.rol', 'rol.id', 'rol.name'])
-      .getMany();
+  // async findAllRolsOneProfile(idProfile: number) {
+  //   const rols = await this._profileRolsRepository
+  //     .createQueryBuilder('rols')
+  //     .leftJoinAndSelect('rols.profile', 'profile')
+  //     .where('profile.id = :idProfile', { idProfile })
+  //     .leftJoinAndSelect('rols.rol', 'rol')
+  //     .select(['rols.rol', 'rol.id', 'rol.name'])
+  //     .getMany();
 
-    return rols.filter((rols) => !!rols).map((name) => name.rol);
-  }
+  //   return rols.filter((rols) => !!rols).map((name) => name.rol);
+  // }
 }

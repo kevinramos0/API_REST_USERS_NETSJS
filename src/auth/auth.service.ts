@@ -88,7 +88,7 @@ export class AuthService {
     delete user.password;
 
     return {
-      ...user,
+      user,
       token,
       refreshToken,
     };
@@ -180,7 +180,7 @@ export class AuthService {
       this._configService.get('TIME_TOKEN_EMAIL'),
       this._configService.get('EMAIL_TOKEN_SECRET'),
     );
-    await this._mailService.sendEmailResetPassword(user, token);
+    await this._mailService.sendEmailResetPassword(user.email, token);
 
     return {
       message: 'Please check your email',

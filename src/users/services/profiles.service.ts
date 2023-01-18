@@ -6,13 +6,7 @@ import {
   Injectable,
   ConflictException,
 } from '@nestjs/common';
-import {
-  Repository,
-  FindManyOptions,
-  FindOptionsWhere,
-  ILike,
-  DataSource,
-} from 'typeorm';
+import { Repository, FindManyOptions, FindOptionsWhere, ILike } from 'typeorm';
 
 import { ModulesService } from './modules.service';
 import { ProfileRolsService } from './profileRols.service';
@@ -36,20 +30,18 @@ export class ProfilesService {
     private readonly _profileRolsRepository: ProfileRolsService,
     @Inject(ModulesService)
     private readonly _moduleRepository: ModulesService,
-    private readonly _dataSource: DataSource,
   ) {}
 
-  async findAllProfiles(params: searchProfileDTO): Promise<{
-    profiles: Profile[];
-    total: number;
-  }> {
+  async findAllProfiles(params: searchProfileDTO) {
     const { limit = 10, offset = 1, pagination = true } = params; // params for pagination
-    const { name } = params; // params for filter
+    const { name, active } = params; // params for filter
 
     const findOptions: FindManyOptions<Profile> = {};
     const where: FindOptionsWhere<Profile> = {};
 
     if (name) where.name = ILike(`%${name || ''}%`);
+    if (active !== undefined) where.isActive = active;
+
     // if (is_active) where.firstName = Like(`%${firstName || ''}%`);
     if (pagination) {
       findOptions.take = limit;
@@ -64,11 +56,26 @@ export class ProfilesService {
     const [profiles, total] = await this._profileRepository.findAndCount(
       findOptions,
     );
-
-    return { profiles, total };
+    return {
+      profiles,
+      pagination: {
+        limit: pagination ? limit : total,
+        offset: pagination ? limit : 1,
+        total,
+      },
+    };
   }
 
-  async findOneProfile(id: number): Promise<Profile> {
+  async findOneProfile(id: number) {
+    // const profiles = await this._profileRepository
+    //   .createQueryBuilder('profile')
+    //   .leftJoin('profile.rols', 'rols')
+    //   .leftJoin('rols.rol', 'rol')
+    //   .leftJoin('profile.modules', 'modules')
+    //   .leftJoin('modules.module', 'module')
+    //   .where('profile.id =:id', { id })
+    //   .select(['profile', 'rol.id', 'rol.name'])
+    //   .getOne();
     const profile = await this._profileRepository.findOne({
       where: { id },
       relations: { rols: { rol: true }, modules: { module: true } },
@@ -79,27 +86,33 @@ export class ProfilesService {
     });
     if (!profile)
       throw new BadRequestException(`Profile with id ${id} not found`);
-    return profile;
-  }
-
-  async getRolsToProfile(id: number) {
-    const profile = await this.findOneProfile(id);
-    const rols = await this._profileRolsRepository.findAllRolsOneProfile(
-      profile.id,
-    );
     return {
-      profile,
-      rols,
+      id: profile.id,
+      name: profile.name,
+      description: profile.description,
+      isActive: profile.isActive,
+      createAt: profile.createAt,
+      updateAt: profile.updateAt,
+      deleteAt: profile.deleteAt,
+      rols: profile.rols.map((rols) => rols.rol),
+      modules: profile.modules.map((modules) => modules.module),
     };
   }
 
   async createProfile(profileDto: CreateProfileDto) {
-    const { rols, ...profileData } = profileDto;
+    const { rols, modules, ...profileData } = profileDto;
 
     // valid that exist all rols
     if (rols) {
       for (const rol of rols) {
         await this._rolRepository.getOneRol(rol);
+      }
+    }
+
+    // valid that exist all modules
+    if (modules) {
+      for (const rol of rols) {
+        await this._moduleRepository.findByPk(rol);
       }
     }
 
@@ -118,14 +131,18 @@ export class ProfilesService {
         profile,
       );
 
-    return profile;
+    if (modules)
+      await this._moduleRepository.addToProfile(
+        [...new Set(modules)], // delete duplicate ids
+        profile,
+      );
+
+    const newProfile = await this.findOneProfile(profile.id);
+    return newProfile;
   }
 
-  async updateProfile(
-    id: number,
-    updateProfileDto: UpdateProfileDto,
-  ): Promise<Profile> {
-    const { rols, ...profileData } = updateProfileDto;
+  async updateProfile(id: number, updateProfileDto: UpdateProfileDto) {
+    const { rols, modules, ...profileData } = updateProfileDto;
 
     await this.findOneProfile(id);
     const profile = await this._profileRepository.preload({
@@ -147,8 +164,22 @@ export class ProfilesService {
         profile,
       );
     }
+
+    if (modules) {
+      for (const module of modules) {
+        await this._moduleRepository.findByPk(module);
+        //delete all rols to profile
+      }
+      await this._moduleRepository.deteleToProfile(profile);
+      //add all new rols
+      await this._moduleRepository.addToProfile(
+        [...new Set(modules)], // delete duplicate ids
+        profile,
+      );
+    }
     await this._profileRepository.save(profile);
-    return profile;
+    const dataProfile = await this.findOneProfile(id);
+    return dataProfile;
   }
 
   /** @deprecated never used */
@@ -174,88 +205,5 @@ export class ProfilesService {
     const profile = await this._profileRepository.restore(id);
     if (!profile.affected) throw new ConflictException();
     return profile;
-  }
-
-  async getModulesProfile(idProfile: number) {
-    await this.findOneProfile(idProfile);
-    const modules = await this._profileRepository
-      .createQueryBuilder('profile')
-      .innerJoin('profile.modules', 'moduleProfile')
-      .innerJoin('moduleProfile.module', 'module')
-      .where('profile.id =:idProfile', { idProfile })
-      .select([
-        'profile.id',
-        'profile.name',
-        'moduleProfile.module',
-        'module.id',
-        'module.name',
-      ])
-      .getOne();
-
-    return modules;
-  }
-
-  /** ADD MODULES */
-  async addModulesToProfile(id: number, modules: number[]) {
-    const profile = await this.findOneProfile(id);
-
-    const queryRunner = this._dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      // add modules to profile
-      await this._moduleRepository.addToProfile(
-        [...new Set(modules)],
-        profile,
-        queryRunner,
-      );
-      // commit transaction now:
-      await queryRunner.commitTransaction();
-
-      //rolls all changes
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw new BadRequestException(err);
-
-      // finish transaction
-    } finally {
-      await queryRunner.release();
-    }
-
-    return {
-      message: 'Modules add successfully',
-    };
-  }
-
-  async deleteModuleProfile(id: number, module: number) {
-    const profile = await this.findOneProfile(id);
-    const queryRunner = this._dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      //  delete module
-      await this._moduleRepository.deteleToProfile(
-        module,
-        profile,
-        queryRunner,
-      );
-      // commit transaction now:
-      await queryRunner.commitTransaction();
-
-      //rolls all changes
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw new BadRequestException(err);
-
-      // finish transaction
-    } finally {
-      await queryRunner.release();
-    }
-
-    return {
-      message: 'Module delete successfully',
-    };
   }
 }

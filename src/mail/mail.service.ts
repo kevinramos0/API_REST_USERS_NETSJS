@@ -1,7 +1,6 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { userData } from '../auth/interfaces';
 
 @Injectable()
 export class MailService {
@@ -64,13 +63,13 @@ export class MailService {
     });
   }
 
-  async sendEmailResetPassword(user: userData, token: string) {
+  async sendEmailResetPassword(email: string, token: string) {
     const url = `${this.configService.get(
       'BASE_URL',
     )}/change/password/?token=${token}`;
 
     await this.mailerService.sendMail({
-      to: user.email,
+      to: email,
       subject: 'Reset Password',
       html: ` <div
       style="background-color: #f5f3f2; border-radius: 5px; text-align: center">
@@ -86,7 +85,7 @@ export class MailService {
             text-align: center;
             display: inline-block;
             border-radius: 5px">
-          ${user.email}
+          ${email}
         </p>
         <p>
         Para cambiar tu contraseña debes hacer click en el siguiente enlace

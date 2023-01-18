@@ -52,6 +52,12 @@ export class UpdateRolDto extends PartialType(
 ) {}
 
 export class SearchRolDto extends IntersectionType(
-  PartialType(PickType(GenericRolDto, ['name', 'isActive'] as const)),
+  PartialType(PickType(GenericRolDto, ['name'] as const)),
   paginationDto,
-) {}
+) {
+  @ApiPropertyOptional()
+  @IsBoolean()
+  @IsOptional()
+  @IsNotEmpty()
+  readonly active: boolean;
+}

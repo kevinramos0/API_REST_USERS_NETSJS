@@ -51,19 +51,27 @@ export class CreateProfileDto extends PickType(GenericProfileDto, [
   @IsArray()
   @ArrayMinSize(1)
   readonly rols?: number[];
-}
 
+  @ApiPropertyOptional({ type: Number, isArray: true })
+  @IsOptional()
+  @IsPositive({ each: true })
+  @IsArray()
+  @ArrayMinSize(1)
+  readonly modules?: number[];
+}
 export class UpdateProfileDto extends IntersectionType(
   PartialType(CreateProfileDto),
   PickType(GenericProfileDto, ['isActive'] as const),
 ) {}
 
-export class searchProfileDTO extends IntersectionType(
-  PartialType(PickType(GenericProfileDto, ['isActive'] as const)),
-  paginationDto,
-) {
+export class searchProfileDTO extends PartialType(paginationDto) {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
   readonly name: string;
+
+  @ApiPropertyOptional()
+  @IsBoolean()
+  @IsOptional()
+  readonly active: boolean;
 }
