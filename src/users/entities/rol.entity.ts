@@ -31,16 +31,16 @@ export class Rol {
   createdAt: Date;
 
   @UpdateDateColumn({
-    name: 'update_at',
+    name: 'updated_at',
     type: 'timestamptz',
   })
-  updateAt: Date;
+  updatedAt: Date;
 
   @DeleteDateColumn({
-    name: 'delete_at',
+    name: 'deleted_at',
     type: 'timestamptz',
   })
-  deleteAt?: Date;
+  deletedAt?: Date;
 
   // relacion a tabla personalizada
   @OneToMany(() => ProfileRols, (rol: ProfileRols) => rol.rol, {

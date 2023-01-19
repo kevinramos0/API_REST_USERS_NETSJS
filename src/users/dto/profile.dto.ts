@@ -35,7 +35,7 @@ export class GenericProfileDto {
 
   @IsDate()
   @IsOptional()
-  readonly updateAt: Date;
+  readonly updatedAt: Date;
 
   @IsDate()
   @IsOptional()

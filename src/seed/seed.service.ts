@@ -25,9 +25,9 @@ export class SeedService {
 
     if (!searchUser) {
       const rol = await this.seedCreateRols();
-      const profile = await this.seedCreateProfile();
-      const user = await this.seedCreateUser(profile.id);
       const modules = await this.seedCreateModules();
+      const profile = await this.seedCreateProfile(rol, modules);
+      const user = await this.seedCreateUser(profile.id);
 
       await Promise.all([rol, profile, user, modules]);
 
@@ -48,7 +48,8 @@ export class SeedService {
       rols.push(saveRol);
     }
 
-    return rols[0];
+    // return rol Admin
+    return rols[0].id;
   }
 
   async seedCreateModules() {
@@ -63,10 +64,15 @@ export class SeedService {
     return modules.map((p) => p.id);
   }
 
-  async seedCreateProfile() {
+  async seedCreateProfile(rol: number, modules: number[]) {
     const seedProfile = initSeedData.Profile;
+    console.log(rol, modules);
 
-    const profile = await this._profileService.createProfile(seedProfile);
+    const profile = await this._profileService.createProfile({
+      ...seedProfile,
+      rols: [rol],
+      modules,
+    });
 
     return profile;
   }

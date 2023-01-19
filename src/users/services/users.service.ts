@@ -87,8 +87,8 @@ export class UsersService {
       'user.email',
       'user.isActive',
       'user.isVerified',
-      'user.createAt',
-      'user.updateAt',
+      'user.createdAt',
+      'user.updatedAt',
       'profile.name',
       'profile.id',
     ]);
@@ -118,7 +118,7 @@ export class UsersService {
       password: bcrypt.hashSync(password, 10),
       isActive: true,
       profile: { id: profile },
-      createAt: moment().tz('America/El_Salvador').format(),
+      createdAt: moment().tz('America/El_Salvador').format(),
     });
 
     await this._userRepository.save(newUser);
@@ -139,7 +139,7 @@ export class UsersService {
     const { profile, ...userData } = updateUserDTO;
     const user = await this._userRepository.preload({
       id,
-      updateAt: moment().tz('America/El_Salvador').format(),
+      updatedAt: moment().tz('America/El_Salvador').format(),
       profile: { id: profile },
       ...userData,
     });
@@ -153,7 +153,7 @@ export class UsersService {
     const user = await this._userRepository.preload({
       id,
       isActive: false,
-      updateAt: moment().tz('America/El_Salvador').format(),
+      updatedAt: moment().tz('America/El_Salvador').format(),
     });
     await this._userRepository.save(user);
     return { message: 'User deleted successfully' };
@@ -205,7 +205,7 @@ export class UsersService {
     const updateUserPassword = await this._userRepository.preload({
       id: idUser,
       password: await bcrypt.hash(password, 10),
-      updateAt: moment().tz('America/El_Salvador').format(),
+      updatedAt: moment().tz('America/El_Salvador').format(),
     });
 
     await this._userRepository.save(updateUserPassword);

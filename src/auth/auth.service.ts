@@ -162,7 +162,7 @@ export class AuthService {
     const updateUser = await this._userRepository.preload({
       id: userId,
       isVerified: true,
-      updateAt: moment().tz('America/El_Salvador').format(),
+      updatedAt: moment().tz('America/El_Salvador').format(),
     });
     await this._userRepository.save(updateUser);
 

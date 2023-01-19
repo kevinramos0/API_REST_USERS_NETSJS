@@ -35,19 +35,19 @@ export class User {
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  createAt: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({
-    name: 'update_at',
+    name: 'updated_at',
     type: 'timestamptz',
   })
-  updateAt: Date;
+  updatedAt: Date;
 
   @DeleteDateColumn({
-    name: 'delete_at',
+    name: 'deleted_at',
     type: 'timestamptz',
   })
-  deleteAt?: Date;
+  deletedAt?: Date;
 
   // relacion bidireccional
   @ManyToOne(() => Profile, (profile) => profile.user)

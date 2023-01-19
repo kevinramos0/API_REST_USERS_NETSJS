@@ -67,15 +67,6 @@ export class ProfilesService {
   }
 
   async findOneProfile(id: number) {
-    // const profiles = await this._profileRepository
-    //   .createQueryBuilder('profile')
-    //   .leftJoin('profile.rols', 'rols')
-    //   .leftJoin('rols.rol', 'rol')
-    //   .leftJoin('profile.modules', 'modules')
-    //   .leftJoin('modules.module', 'module')
-    //   .where('profile.id =:id', { id })
-    //   .select(['profile', 'rol.id', 'rol.name'])
-    //   .getOne();
     const profile = await this._profileRepository.findOne({
       where: { id },
       relations: { rols: { rol: true }, modules: { module: true } },
@@ -91,9 +82,9 @@ export class ProfilesService {
       name: profile.name,
       description: profile.description,
       isActive: profile.isActive,
-      createAt: profile.createAt,
-      updateAt: profile.updateAt,
-      deleteAt: profile.deleteAt,
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+      deletedAt: profile.deletedAt,
       rols: profile.rols.map((rols) => rols.rol),
       modules: profile.modules.map((modules) => modules.module),
     };
@@ -111,19 +102,18 @@ export class ProfilesService {
 
     // valid that exist all modules
     if (modules) {
-      for (const rol of rols) {
-        await this._moduleRepository.findByPk(rol);
+      for (const module of modules) {
+        await this._moduleRepository.findByPk(module);
       }
     }
 
     // create object in memory
     const profile = this._profileRepository.create({
       ...profileData,
-      createAt: moment().tz('America/El_Salvador').format(),
+      createdAt: moment().tz('America/El_Salvador').format(),
     });
 
     await this._profileRepository.save(profile);
-
     // add rols to profile
     if (rols)
       await this._profileRolsRepository.addRolsToProfile(
@@ -147,7 +137,7 @@ export class ProfilesService {
     await this.findOneProfile(id);
     const profile = await this._profileRepository.preload({
       id,
-      updateAt: moment().tz('America/El_Salvador').format(),
+      updatedAt: moment().tz('America/El_Salvador').format(),
       ...profileData,
     });
 
@@ -188,7 +178,7 @@ export class ProfilesService {
     const profile = await this._profileRepository.preload({
       id,
       isActive: false,
-      updateAt: moment().tz('America/El_Salvador').format(),
+      updatedAt: moment().tz('America/El_Salvador').format(),
     });
     await this._profileRepository.save(profile);
     // await this._profileRepository.delete(id);

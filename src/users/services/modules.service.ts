@@ -95,7 +95,7 @@ export class ModulesService {
 
     const module = await this._moduleRepository.preload({
       id,
-      updateAt: moment().tz('America/El_Salvador').format(),
+      updatedAt: moment().tz('America/El_Salvador').format(),
       ...payloadFindModule,
     });
     await this._moduleRepository.save(module);
@@ -138,7 +138,7 @@ export class ModulesService {
           .createQueryBuilder()
           .insert()
           .into(ProfileModules)
-          .values({ profile: profile, module: { id: module } })
+          .values({ profile, module: { id: module } })
           .execute();
       }
       // commit transaction now:
@@ -146,6 +146,7 @@ export class ModulesService {
 
       //rolls all changes
     } catch (err) {
+      console.error('damñlañdmñmfdña');
       await queryRunner.rollbackTransaction();
       throw new BadRequestException(err);
 

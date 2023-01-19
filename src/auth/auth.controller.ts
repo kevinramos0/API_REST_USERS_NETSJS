@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Get,
   Param,
   Post,
   BadRequestException,
@@ -55,13 +54,13 @@ export class AuthController {
   }
 
   @ApiOperation({ summary: 'Verify account' })
-  @Get('verify/account/:token')
+  @Post('verify/account/:token')
   verifyAccount(@Param('token') token: string) {
     return this.authService.verifyUser(token);
   }
 
   @ApiOperation({ summary: 'Create new Token' })
-  @Get('refresh/:refreshToken')
+  @Post('refresh/:refreshToken')
   refreshToken(@Param('refreshToken') refreshToken: string) {
     return this.authService.refreshTokens(refreshToken);
   }

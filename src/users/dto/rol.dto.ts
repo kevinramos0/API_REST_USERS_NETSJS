@@ -35,11 +35,11 @@ export class GenericRolDto {
 
   @IsDate()
   @IsNotEmpty()
-  readonly createAt: Date;
+  readonly createdAt: Date;
 
   @IsDate()
   @IsNotEmpty()
-  readonly updateAt: Date;
+  readonly updatedAt: Date;
 }
 
 export class CreateRolDto extends PickType(GenericRolDto, [
@@ -48,7 +48,7 @@ export class CreateRolDto extends PickType(GenericRolDto, [
 ] as const) {}
 
 export class UpdateRolDto extends PartialType(
-  OmitType(GenericRolDto, ['createAt', 'updateAt'] as const),
+  OmitType(GenericRolDto, ['createdAt', 'updatedAt'] as const),
 ) {}
 
 export class SearchRolDto extends IntersectionType(

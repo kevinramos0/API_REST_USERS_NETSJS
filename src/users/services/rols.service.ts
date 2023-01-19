@@ -64,7 +64,7 @@ export class RolsService {
     await this.getOneRol(id);
     const rol = await this._rolsRepository.preload({
       id,
-      updateAt: moment().tz('America/El_Salvador').format(),
+      updatedAt: moment().tz('America/El_Salvador').format(),
       ...updateRol,
     });
     await this._rolsRepository.save(rol);
@@ -77,7 +77,7 @@ export class RolsService {
     const rol = await this._rolsRepository.preload({
       id,
       isActive: false,
-      updateAt: moment().tz('America/El_Salvador').format(),
+      updatedAt: moment().tz('America/El_Salvador').format(),
     });
     await this._rolsRepository.save(rol);
     return { message: 'Profile deleted successfully' };

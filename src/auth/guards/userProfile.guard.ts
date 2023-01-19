@@ -43,6 +43,6 @@ export class UserProfileGuard implements CanActivate {
     const filtro = [...validRols.filter((rol) => profile.rols.includes(rol))];
     if (filtro.length > 0) return true;
 
-    throw new ForbiddenException(`User ${user.email} need a valid profile`);
+    throw new ForbiddenException(`Forbidden`);
   }
 }
