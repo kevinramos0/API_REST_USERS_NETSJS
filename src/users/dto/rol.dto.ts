@@ -9,11 +9,11 @@ import {
   PickType,
   PartialType,
   OmitType,
-  IntersectionType,
   ApiProperty,
   ApiPropertyOptional,
 } from '@nestjs/swagger';
 import { paginationDto } from '../../common/dto/pagination.dto';
+import { Transform } from 'class-transformer';
 
 // import { OmitType, PartialType } from '@nestjs/mapped-types';
 
@@ -51,13 +51,23 @@ export class UpdateRolDto extends PartialType(
   OmitType(GenericRolDto, ['createdAt', 'updatedAt'] as const),
 ) {}
 
-export class SearchRolDto extends IntersectionType(
-  PartialType(PickType(GenericRolDto, ['name'] as const)),
-  paginationDto,
-) {
+export class SearchRolDto extends PartialType(paginationDto) {
   @ApiPropertyOptional()
-  @IsBoolean()
+  @IsOptional()
+  @IsString()
+  readonly name: string;
+
+  @ApiPropertyOptional()
   @IsOptional()
   @IsNotEmpty()
+  @IsBoolean()
+  /** TRANSFORM STRING TO BOOLEAN */
+  @Transform(({ obj, key }) => {
+    const value = obj[key];
+    if (typeof value === 'string') {
+      return obj[key] === 'true';
+    }
+    return value;
+  })
   readonly active: boolean;
 }

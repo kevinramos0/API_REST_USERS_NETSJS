@@ -16,6 +16,7 @@ import {
   ApiProperty,
   ApiPropertyOptional,
 } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 
 export class GenericProfileDto {
   @ApiProperty()
@@ -71,7 +72,15 @@ export class searchProfileDTO extends PartialType(paginationDto) {
   readonly name: string;
 
   @ApiPropertyOptional()
-  @IsBoolean()
   @IsOptional()
+  @IsBoolean()
+  /** TRANSFORM STRING TO BOOLEAN */
+  @Transform(({ obj, key }) => {
+    const value = obj[key];
+    if (typeof value === 'string') {
+      return obj[key] === 'true';
+    }
+    return value;
+  })
   readonly active: boolean;
 }
