@@ -23,8 +23,11 @@ interface IUsers {
 
 interface IModules {
   name: string;
+  nameRoute: string;
   description: string;
+  icon: string;
   isActive: boolean;
+  isPublic: boolean;
 }
 
 interface SeedData {
@@ -177,17 +180,26 @@ export const initSeedData: SeedData = {
   Modules: [
     {
       name: 'Users',
+      nameRoute: 'users',
       description: 'module for management users',
+      icon: 'mdi-account-group',
+      isPublic: false,
       isActive: true,
     },
     {
       name: 'Profiles',
-      description: 'module for management profiles',
+      nameRoute: 'profiles',
+      description: 'modules for management profiles',
+      icon: 'mdi-account-tie',
+      isPublic: false,
       isActive: true,
     },
     {
       name: 'Rols',
+      nameRoute: 'rols',
       description: 'module for management rols',
+      icon: 'mdi-account-cog',
+      isPublic: false,
       isActive: true,
     },
   ],

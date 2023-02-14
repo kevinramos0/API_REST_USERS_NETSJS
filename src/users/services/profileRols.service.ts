@@ -18,7 +18,6 @@ export class ProfileRolsService {
 
     try {
       // add rols to profile
-      console.error('00000000000000');
       for (const rol of rols) {
         await queryRunner.manager
           .createQueryBuilder()
@@ -32,7 +31,6 @@ export class ProfileRolsService {
 
       //rolls all changes
     } catch (err) {
-      console.error('1111');
       await queryRunner.rollbackTransaction();
       throw new BadRequestException(err);
 

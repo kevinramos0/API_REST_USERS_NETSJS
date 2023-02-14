@@ -27,7 +27,7 @@ export class ModulesController {
 
   @ApiOperation({ summary: 'Find Modules' })
   @Get()
-  @Auth(ValidRols.adminGetModule)
+  @Auth(ValidRols.adminGetModule, ValidRols.getModule)
   findAll(@Query() params: FindModuleDto) {
     return this._modulesService.findAll(params);
   }

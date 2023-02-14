@@ -17,11 +17,20 @@ export class Modules {
   @Column('varchar')
   name: string;
 
+  @Column({ name: 'name_ruta', type: 'varchar' })
+  nameRoute: string;
+
   @Column('varchar', { length: 250, nullable: true })
   description: string;
 
+  @Column('varchar')
+  icon: string;
+
   @Column({ name: 'is_active', type: 'boolean', default: true })
   isActive: boolean;
+
+  @Column({ name: 'is_public', type: 'boolean', default: false })
+  isPublic: boolean;
 
   @CreateDateColumn({
     name: 'created_at',

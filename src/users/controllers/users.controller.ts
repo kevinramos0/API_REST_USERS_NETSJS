@@ -31,7 +31,7 @@ export class UsersController {
 
   @ApiOperation({ summary: 'Find Users' })
   @Get()
-  @Auth(ValidRols.adminGetUser)
+  @Auth(ValidRols.adminGetUser, ValidRols.getUser)
   // @UsePipes(new ValidationPipe({ transform: true })) // usar valores por defecto si no los envian
   findAll(@Query() params: searchUserDto) {
     return this.usersService.findAllUsers(params);

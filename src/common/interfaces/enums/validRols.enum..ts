@@ -17,7 +17,7 @@ export enum ValidRols {
   adminRestoreUser = 'Admin Restore User',
   admincreateProfile = 'Admin Create Profile',
   adminGetProfile = 'Admin Get Profile',
-  adminUpdateProfile = 'Update Profile',
+  adminUpdateProfile = 'Admin Update Profile',
   adminDeleteProfile = 'Admin Delete Profile',
   adminRestoreProfile = 'Admin Restore Profile',
   adminGetRol = 'Admin Get Rol',

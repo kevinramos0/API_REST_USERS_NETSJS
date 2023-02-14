@@ -26,14 +26,28 @@ export class GenericModuleDTO {
   @IsNotEmpty()
   name: string;
 
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  nameRoute: string;
+
   @ApiProperty({ nullable: true })
   @IsOptional()
   @IsString()
   description?: string;
 
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  icon: string;
+
   @ApiProperty({ default: true })
   @IsBoolean()
   readonly isActive: boolean = true;
+
+  @ApiProperty({ default: false })
+  @IsBoolean()
+  readonly isPublic: boolean = false;
 }
 
 export class CreateModuleDto extends OmitType(GenericModuleDTO, [
