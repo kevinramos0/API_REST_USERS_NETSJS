@@ -42,13 +42,14 @@ export class UsersService {
     const { limit = 10, offset = 1, pagination = true } = params;
 
     //params to filter
-    const { email, active } = params;
+    const { email, active, verified } = params;
 
     const findOptions: FindManyOptions<User> = {};
     const where: FindOptionsWhere<User> = {};
 
     if (email) where.email = ILike(`%${email || ''}%`);
     if (active !== undefined) where.isActive = active;
+    if (verified !== undefined) where.isVerified = verified;
 
     if (pagination) {
       findOptions.take = limit;

@@ -91,6 +91,19 @@ export class searchUserDto extends paginationDto {
     return value;
   })
   readonly active?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  /** TRANSFORM STRING TO BOOLEAN */
+  @Transform(({ obj, key }) => {
+    const value = obj[key];
+    if (typeof value === 'string') {
+      return obj[key] === 'true';
+    }
+    return value;
+  })
+  readonly verified?: boolean;
 }
 
 export class FindOneUserDto {
