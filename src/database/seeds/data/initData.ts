@@ -202,6 +202,14 @@ export const initSeedData: SeedData = {
       isPublic: false,
       isActive: true,
     },
+    {
+      name: 'Modules',
+      nameRoute: 'modules',
+      description: 'module for management modules',
+      icon: 'mdi-routes',
+      isPublic: false,
+      isActive: true,
+    },
   ],
   Profile: {
     name: 'Administrator',

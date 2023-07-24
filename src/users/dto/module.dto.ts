@@ -24,22 +24,22 @@ export class GenericModuleDTO {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  name: string;
+  readonly name: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  nameRoute: string;
+  readonly nameRoute: string;
 
   @ApiProperty({ nullable: true })
   @IsOptional()
   @IsString()
-  description?: string;
+  readonly escription?: string;
 
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
-  icon: string;
+  readonly icon: string;
 
   @ApiProperty({ default: true })
   @IsBoolean()
@@ -59,10 +59,12 @@ export class UpdateModuleDto extends PartialType(
   OmitType(GenericModuleDTO, ['id']),
 ) {}
 
-export class FindModuleDto extends IntersectionType(
-  PickType(PartialType(GenericModuleDTO), ['name']),
-  paginationDto,
-) {
+export class FindModuleDto extends PartialType(paginationDto) {
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  readonly name: string;
+
   @ApiPropertyOptional({ default: true })
   @IsOptional()
   /** TRANSFORM STRING TO BOOLEAN */

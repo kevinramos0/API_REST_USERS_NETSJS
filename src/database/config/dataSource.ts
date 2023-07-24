@@ -1,11 +1,12 @@
-import { DataSource } from 'typeorm';
+import { DataSource, DataSourceOptions } from 'typeorm';
 import { config } from 'dotenv';
 import { ConfigService } from '@nestjs/config';
+import { SeederOptions } from 'typeorm-extension';
+import { MainSeeder } from '../seeds/Main.seeder';
 
 config();
 const configService = new ConfigService();
-
-export default new DataSource({
+const dataSource: DataSourceOptions & SeederOptions = {
   type: 'postgres',
   database: configService.get('DB_DATABASE'),
   port: configService.get('DB_PORT'),
@@ -14,7 +15,10 @@ export default new DataSource({
   host: configService.get('DB_HOST'),
   logging: !!configService.get('DB_LOGGIN') === true,
   synchronize: !!configService.get('DB_SYNCHRONIZE') === true,
-  entities: ['src/**/*.entity{.ts, .js}'],
+  entities: [__dirname + '/../../**/*.entity.{js,ts}'],
   migrationsRun: true,
-  migrations: ['src/database/migrations/*.ts'],
-});
+  migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+  seeds: [MainSeeder],
+};
+
+export default new DataSource(dataSource);

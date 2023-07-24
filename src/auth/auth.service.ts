@@ -105,10 +105,30 @@ export class AuthService {
           this._configService.get('TYPE_TIME_TOKEN_REFRES'),
         )
         .format(),
+      active: true,
     });
 
     await this._refreshTokenRepository.save(updaterefreshTokenUser);
     return refreshToken;
+  }
+
+  async createTokenMailer(idUser: number, token: string) {
+    const updaterefreshTokenUser = this._refreshTokenRepository.create({
+      refreshToken: token,
+      user: { id: idUser },
+      dateValid: moment()
+        .tz('America/El_Salvador')
+        .add(
+          '15',
+          'minutes',
+          // this._configService.get('TIME_TOKEN_EMAIL'),
+          // this._configService.get('TYPE_TIME_TOKEN_REFRES'),
+        )
+        .format(),
+      active: true,
+    });
+
+    await this._refreshTokenRepository.save(updaterefreshTokenUser);
   }
 
   async refreshTokens(refreshToken: string) {
@@ -123,13 +143,35 @@ export class AuthService {
       },
     });
 
-    if (!findRefreshToken)
-      throw new BadRequestException('RefreshToken not valid');
+    // const [tokensOld, count] = await this._refreshTokenRepository.findAndCount({
+    //   where: { user: { id: user.id } },
+    // });
 
+    // if (!!count) {
+    //   tokensOld.forEach(async (token) => {
+    //     const desactive = await this._refreshTokenRepository.preload({
+    //       id: token.id,
+    //       active: false,
+    //     });
+
+    //     await this._refreshTokenRepository.save(desactive);
+    //   });
+    // }
+
+    if (!findRefreshToken)
+      throw new BadRequestException('Token expired, please sign in again');
+
+    const user = await this._userRepository.findOne({
+      where: { id: findRefreshToken.user.id },
+      select: {
+        email: true,
+        id: true,
+      },
+    });
     const dateToken = moment(findRefreshToken.dateValid).valueOf();
     const DateNow = moment().tz('America/El_Salvador').valueOf();
     if (dateToken < DateNow) {
-      await this.logout(findRefreshToken.user as unknown as userData);
+      await this.logout(user as any);
       throw new BadRequestException('Token expired, please sign in again');
     }
     const token = await this._commonService.createJwtToken(
@@ -147,6 +189,9 @@ export class AuthService {
       this._configService.get('TIME_TOKEN_EMAIL'),
       this._configService.get('EMAIL_TOKEN_SECRET'),
     );
+
+    await this.createTokenMailer(user.id, token);
+
     await this._mailService.sendUserConfirmation(user.email, token);
     return {
       message: `Please check the email ${user.email} for verify your account`,
@@ -158,6 +203,9 @@ export class AuthService {
       token,
       this._configService.get('EMAIL_TOKEN_SECRET'),
     );
+
+    await this._commonService.desactiveToken(token);
+
     const { id: userId } = verifyToken;
     const updateUser = await this._userRepository.preload({
       id: userId,
@@ -180,6 +228,8 @@ export class AuthService {
       this._configService.get('TIME_TOKEN_EMAIL'),
       this._configService.get('EMAIL_TOKEN_SECRET'),
     );
+
+    await this.createTokenMailer(user.id, token);
     await this._mailService.sendEmailResetPassword(user.email, token);
 
     return {
@@ -193,6 +243,8 @@ export class AuthService {
       token,
       this._configService.get('EMAIL_TOKEN_SECRET'),
     );
+
+    await this._commonService.desactiveToken(token);
 
     const { id: userId } = verifyToken;
 

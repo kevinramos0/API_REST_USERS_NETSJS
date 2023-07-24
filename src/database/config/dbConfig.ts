@@ -16,7 +16,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       host: this.configService.get('DB_HOST') || 'localhost',
       logging: !!this.configService.get('DB_LOGGING') === true,
       synchronize: !!this.configService.get('DB_SYNCHRONIZE') === true,
-      entities: ['dist/**/*.entity{.ts,.js}'],
+      entities: [__dirname + '/../../**/*.entity.{js,ts}'],
       autoLoadEntities: true,
     };
   }

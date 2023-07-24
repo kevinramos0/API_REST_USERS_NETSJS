@@ -24,7 +24,8 @@
     "migration:generate": "npm run typeorm -- -d ./src/database/config/dataSource.ts migration:generate ./src/database/migrations/$npm_config_name",
     "migration:create": "npm run typeorm migration:create -- -d ./src/database/config/dataSource.ts -n",
     "migration:run": "npm run typeorm migration:run -- -d ./src/database/config/dataSource.ts",
-    "migration:revert": "npm run typeorm migration:revert -- -d ./src/database/config/dataSource.ts"
+    "migration:revert": "npm run typeorm migration:revert -- -d ./src/database/config/dataSource.ts",
+    "seed": "ts-node --project ./tsconfig.json -r tsconfig-paths/register ./node_modules/typeorm-extension/dist/cli/index.js seed -d ./src/database/config/dataSource.ts"
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",
@@ -51,7 +52,8 @@
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
     "swagger-ui-express": "^4.5.0",
-    "typeorm": "^0.3.10"
+    "typeorm": "^0.3.10",
+    "typeorm-extension": "^2.8.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

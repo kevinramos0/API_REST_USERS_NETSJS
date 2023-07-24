@@ -59,9 +59,13 @@ export class AuthController {
     return this.authService.verifyUser(token);
   }
 
+  // @ApiBearerAuth()
   @ApiOperation({ summary: 'Create new Token' })
   @Post('refresh/:refreshToken')
-  refreshToken(@Param('refreshToken') refreshToken: string) {
+  refreshToken(
+    @Param('refreshToken') refreshToken: string,
+    // @GetUser() user: userData,
+  ) {
     return this.authService.refreshTokens(refreshToken);
   }
 }

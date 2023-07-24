@@ -8,7 +8,7 @@ import { AuthModule } from '../auth/auth.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([...Entities]),
-    CommonModule,
+    forwardRef(() => CommonModule),
     forwardRef(() => AuthModule),
   ],
   controllers: [...Controllers],

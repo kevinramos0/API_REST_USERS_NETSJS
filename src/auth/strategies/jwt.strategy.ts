@@ -46,6 +46,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       .createQueryBuilder('user')
       .leftJoin('user.refreshToken', 'token')
       .where('token.user.id =:id', { id })
+      .andWhere('token.active =:active', { active: true })
       .select(['token.id', 'token.refreshToken'])
       .orderBy('token.id', 'DESC')
       .getCount();

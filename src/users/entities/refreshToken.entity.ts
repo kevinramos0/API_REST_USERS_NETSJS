@@ -18,6 +18,9 @@ export class refreshToken {
   @Column({ name: 'date_valid', type: 'timestamptz' })
   dateValid: Date;
 
+  @Column({ type: 'boolean', default: false })
+  active: boolean;
+
   @ManyToOne(() => User)
   @JoinColumn({
     name: 'id_user',
